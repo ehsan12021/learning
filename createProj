@@ -1,0 +1,50 @@
+dotnet new sln  ساخت sln
+dotnet new console -n projectname
+cd projectname
+dotnet run
+cd ..
+git add projectname/
+git commit -m message
+git push origin main
+
+
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Launch (slntest)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/slntest/bin/Debug/net9.0/slntest.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/slntest",
+      "stopAtEntry": false,
+      "console": "integratedTerminal"
+    }
+  ]
+}
+
+
+// filepath: d:\examRepo\exam\.vscode\tasks.json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/slntest/slntest.csproj",
+        "-c",
+        "Debug"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
