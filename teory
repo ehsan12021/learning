@@ -1,0 +1,40 @@
+جمع‌بندی نهایی Security (کامل و عمیق)
+
+Mindset
+
+AuthN ≠ AuthZ
+
+Authorization نزدیک Business Rule
+
+Vulnerabilities
+
+IDOR
+
+Mass Assignment
+
+CSRF
+
+XSS
+
+Secure Design
+
+Trust Boundary
+
+Least Privilege
+
+Fail Fast
+
+Validate at Boundary
+----------------------------------------------------------------------------------------------------------------------------------
+به نظرت کدام کار ThreadPool را بیشتر نابود می‌کند؟
+
+A) استفاده‌ی درست از async برای I/O
+B) استفاده‌ی زیاد از Task.Run در Web App
+----------------------------------------------------------------------------------------------------------------------------------
+services.Configure<AppSettings>(
+    Configuration.GetSection("AppSettings")); 
+
+public MyService(IOptions<AppSettings> options)
+{
+    var timeout = options.Value.Timeout;
+}
