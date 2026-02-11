@@ -1,0 +1,71 @@
+git config --global user.name "Ali"        → تنظیم نام کاربر
+git config --global user.email "a@b.com"   → تنظیم ایمیل
+git config --list                          → نمایش تنظیمات
+git init                                   → ساخت ریپازیتوری جدید
+git clone <url>                            → کلون گرفتن پروژه
+-------------------------------------------------------------------------------------
+git status                                 → وضعیت فایل‌ها
+git log                                    → تاریخچه کامیت‌ها
+git log --oneline --graph --all            → نمایش گرافیکی
+git diff                                   → تفاوت تغییرات
+git show <commit>                          → جزئیات یک کامیت
+-------------------------------------------------------------------------------------
+git add <file>                             → افزودن به staging
+git add .                                  → افزودن همه تغییرات
+git restore <file>                         → لغو تغییر فایل
+git rm <file>                              → حذف فایل از گیت
+git mv old new                             → تغییر نام فایل
+-------------------------------------------------------------------------------------
+\git commit -m "msg"                        → ثبت کامیت
+git commit --amend                         → ویرایش آخرین کامیت
+git commit -am "msg"                       → add + commit همزمان
+-------------
+git branch                                 → لیست برنچ‌ها
+git branch <name>                          → ساخت برنچ
+git checkout <branch>                      → تغییر برنچ
+git switch <branch>                        → تغییر برنچ (مدرن)
+git switch -c <name>                       → ساخت و رفتن به برنچ
+git branch -d <name>                       → حذف برنچ
+--------------------------
+git merge <branch>                         → ادغام برنچ
+git merge --no-ff                          → merge با commit جدا
+git rebase <branch>                        → انتقال تاریخچه
+git rebase -i HEAD~n                       → ریبیس تعاملی
+git rebase --continue                      → ادامه بعد از conflict
+git rebase --abort                         → لغو ریبیس
+-----------------------------
+git cherry-pick <hash>                     → انتقال یک commit
+git cherry-pick A..B                       → انتقال چند کامیت
+git cherry-pick --continue                 → ادامه بعد conflict
+git cherry-pick --abort                    → لغو عملیات
+
+------------------------------------
+git reset --soft <commit>                  → جابجایی HEAD فقط
+git reset --mixed <commit>                 → ریست staging
+git reset --hard <commit>                  → حذف کامل تغییرات
+git revert <commit>                        → ساخت commit معکوس
+
+------------------------------------
+git stash                                  → ذخیره موقت تغییرات
+git stash -u                               → همراه untracked
+git stash list                             → لیست stash ها
+git stash pop                              → بازگردانی و حذف
+git stash apply                            → بازگردانی بدون حذف
+git stash drop                             → حذف stash
+
+---------------------------------------
+git remote -v                              → نمایش remote ها
+git remote add origin <url>                → افزودن remote
+git push origin <branch>                   → ارسال به سرور
+git push -u origin <branch>                → تنظیم upstream
+git pull                                   → دریافت و merge
+git fetch                                  → دریافت بدون merge
+git push --force                           → push اجباری (خطرناک)
+
+----------------------------------------
+git reflog                                 → تاریخچه حرکت HEAD
+git tag <name>                             → ساخت تگ
+git tag -a v1 -m "msg"                     → تگ annotated
+git blame <file>                           → نویسنده خطوط
+git clean -fd                              → حذف فایل‌های اضافی
+git bisect                                 → پیدا کردن commit باگ
