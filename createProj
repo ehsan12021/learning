@@ -1,5 +1,6 @@
 dotnet new sln  ساخت sln
 dotnet new console -n projectname
+dotnet new webapi -n MyApi   برای asp
 cd projectname
 dotnet run
 cd ..
