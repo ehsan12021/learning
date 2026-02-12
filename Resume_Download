@@ -1,0 +1,79 @@
+public class ResumableDownloader
+{
+    private readonly HttpClient _httpClient;
+    public ResumableDownloader(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+        _httpClient.Timeout = TimeSpan.FromMinutes(30);
+    }
+
+    public async Task DownloadAsync(string url, string filePath)
+    {
+        int maxRetry = 3;
+        int retryCount = 0;
+        while (retryCount <= maxRetry)
+        {
+            try
+            {
+                await DownloadInternalAsync(url, filePath);
+                await Task.CompletedTask;
+                return;
+            }
+            catch (System.Exception ex)
+            {
+                retryCount++;
+                Console.WriteLine($"error occured: {ex.Message}");
+                Console.WriteLine($"retry count:{retryCount}");
+                if (retryCount >= maxRetry)
+                {
+                    throw;
+                }
+                await Task.Delay(2000);
+            }
+        }
+    }
+
+    private async Task DownloadInternalAsync(string url, string filePath)
+    {
+        long existingLength = 0;
+        if (File.Exists(filePath))
+        {
+            existingLength = new FileInfo(filePath).Length;
+            Console.WriteLine($"Resuming download from {existingLength} bytes.");
+        }
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        if (existingLength > 0)
+        {
+            request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(existingLength, 0);
+
+        }
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead);
+        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+        {
+            existingLength = 0;
+        }
+        else if (response.StatusCode != System.Net.HttpStatusCode.PartialContent)
+        {
+            throw new NotImplementedException("Resuming downloads is not implemented.");
+        }
+        using var contentStream = await response.Content.ReadAsStreamAsync();
+        using var fileStream = new FileStream(
+            filePath,
+            FileMode.Append,
+            FileAccess.Write,
+            FileShare.None,
+            bufferSize: 8192,
+            useAsync: true
+        );
+        var buffer = new byte[8192];
+        int byteRead = 0;
+        long totalRead = existingLength;
+        while ((byteRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+        {
+            await fileStream.WriteAsync(buffer, 0, byteRead);
+            totalRead += byteRead;
+            Console.WriteLine($"total download to now {totalRead}");
+        }
+        Console.WriteLine($"Download completed successfully");
+    }
+}
