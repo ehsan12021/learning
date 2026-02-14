@@ -1,3 +1,10 @@
+dotnet new sln -n ExamSolution //ایجاد سلوشن
+dotnet new classlib -n ExamCore  //پروژه
+dotnet new xunit -n ExamCore.Tests //پروژه
+dotnet sln ExamSolution.sln add ExamCore\ExamCore.csproj //افزودن پروژه ها به سلوشن
+dotnet sln ExamSolution.sln add ExamCore.Tests\ExamCore.Tests.csproj
+
+-------------------------------------------------------------------
 dotnet new sln  ساخت sln
 dotnet new console -n projectname
 dotnet new webapi -n MyApi   برای asp
