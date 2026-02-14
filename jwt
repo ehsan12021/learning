@@ -1,0 +1,158 @@
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+
+
+"JwtSettings": {
+  "Key": "THIS_IS_MY_SECRET_KEY_123456",
+  "Issuer": "MyAuthServer",
+  "Audience": "MyApiClient",
+  "DurationInMinutes": 60
+}
+
+
+
+
+
+public class LoginRequest
+{
+    public string Username { get; set; }
+    public string Password { get; set; }
+}
+
+
+
+
+---------------------------------------------------------------
+var builder = WebApplication.CreateBuilder(args);
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+    };
+});
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddControllers();
+
+var app = builder.Build();
+
+app.UseAuthentication(); // مهم
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
+
+
+
+-------------------------------------------------------
+
+
+public class JwtService
+{
+    private readonly IConfiguration _config;
+
+    public JwtService(IConfiguration config)
+    {
+        _config = config;
+    }
+
+    public string GenerateToken(string username)
+    {
+        var jwtSettings = _config.GetSection("JwtSettings");
+
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, username),
+            new Claim(ClaimTypes.Role, "Admin")
+        };
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(jwtSettings["Key"]));
+
+        var creds = new SigningCredentials(
+            key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: jwtSettings["Issuer"],
+            audience: jwtSettings["Audience"],
+            claims: claims,
+            expires: DateTime.Now.AddMinutes(
+                Convert.ToDouble(jwtSettings["DurationInMinutes"])),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+}
+
+
+------------------------------------------
+
+builder.Services.AddScoped<JwtService>();
+
+-----------------------------------------------
+
+
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    private readonly JwtService _jwtService;
+
+    public AuthController(JwtService jwtService)
+    {
+        _jwtService = jwtService;
+    }
+
+    [HttpPost("login")]
+    public IActionResult Login(LoginRequest request)
+    {
+        // تستی — در پروژه واقعی از دیتابیس
+        if (request.Username == "admin" && request.Password == "1234")
+        {
+            var token = _jwtService.GenerateToken(request.Username);
+
+            return Ok(new
+            {
+                Token = token
+            });
+        }
+
+        return Unauthorized();
+    }
+}
+
+
+------------------------------------------------------
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class ProductController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult Get()
+    {
+        return Ok("Access Granted");
+    }
+}
+
